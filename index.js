@@ -23,8 +23,24 @@ app.use('/api/requests', require('./routes/requests'));
 app.use('/api/notifications', require('./routes/notifications'));
 
 mongoose.connect(MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('Connected to MongoDB');
+    
+    // Auto-Seed Admin
+    const User = require('./models/User');
+    const bcrypt = require('bcryptjs');
+    const userCount = await User.countDocuments();
+    if (userCount === 0) {
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      await new User({
+        name: 'Super Admin',
+        email: 'admin@crm.com',
+        password: hashedPassword,
+        role: 'admin'
+      }).save();
+      console.log('Startup: Created default admin (admin@crm.com / admin123)');
+    }
+
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
   .catch(err => console.error('MongoDB connection error:', err));
