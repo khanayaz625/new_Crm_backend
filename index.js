@@ -31,11 +31,10 @@ mongoose.connect(MONGO_URI)
     const bcrypt = require('bcryptjs');
     const userCount = await User.countDocuments();
     if (userCount === 0) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
       await new User({
         name: 'Super Admin',
         email: 'admin@crm.com',
-        password: hashedPassword,
+        password: 'admin123', // Model will hash this
         role: 'admin'
       }).save();
       console.log('Startup: Created default admin (admin@crm.com / admin123)');

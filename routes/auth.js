@@ -16,11 +16,10 @@ router.post('/login', async (req, res) => {
     console.log(`Current user count: ${userCount}`);
     
     if (userCount === 0) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
       const bootstrapAdmin = new User({
         name: 'Super Admin',
         email: 'admin@crm.com',
-        password: hashedPassword,
+        password: 'admin123', // Model will hash this
         role: 'admin'
       });
       await bootstrapAdmin.save();
@@ -62,11 +61,10 @@ router.post('/register', async (req, res) => {
     const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
       name,
       email: cleanEmail,
-      password: hashedPassword,
+      password: password, // The User model's pre-save hook will hash this once.
       role: role || 'employee'
     });
 
