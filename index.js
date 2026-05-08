@@ -6,24 +6,21 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+const PORT = process.env.PORT || 5001;
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/crm_db';
+
+app.use(cors({
+  origin: process.env.CLIENT_URL || '*',
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
-const authRoutes = require('./routes/auth');
-const leadRoutes = require('./routes/leads');
-const userRoutes = require('./routes/users');
-const requestRoutes = require('./routes/requests');
-const notificationRoutes = require('./routes/notifications');
-
-app.use('/api/auth', authRoutes);
-app.use('/api/leads', leadRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/requests', requestRoutes);
-app.use('/api/notifications', notificationRoutes);
-
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/crm_db';
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/leads', require('./routes/leads'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/requests', require('./routes/requests'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 mongoose.connect(MONGO_URI)
   .then(() => {

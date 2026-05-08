@@ -6,7 +6,8 @@ dotenv.config();
 
 const seedAdmin = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/crm_db');
+    const atlasUri = 'mongodb+srv://crm:crm123@mern.u7ed3ur.mongodb.net/?appName=Mern';
+    await mongoose.connect(atlasUri);
     
     const adminExists = await User.findOne({ email: 'admin@crm.com' });
     if (adminExists) {
