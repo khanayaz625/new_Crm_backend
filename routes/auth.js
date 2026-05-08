@@ -9,9 +9,12 @@ const { auth } = require('../middleware/auth');
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(`Login attempt for: ${email}`);
 
     // Bootstrap: Create first admin if DB is empty
     const userCount = await User.countDocuments();
+    console.log(`Current user count: ${userCount}`);
+    
     if (userCount === 0) {
       const hashedPassword = await bcrypt.hash('admin123', 10);
       const bootstrapAdmin = new User({
@@ -21,7 +24,7 @@ router.post('/login', async (req, res) => {
         role: 'admin'
       });
       await bootstrapAdmin.save();
-      console.log('Bootstrap: Default admin created (admin@crm.com / admin123)');
+      console.log('Bootstrap: Created default admin (admin@crm.com / admin123)');
     }
 
     const user = await User.findOne({ email });
