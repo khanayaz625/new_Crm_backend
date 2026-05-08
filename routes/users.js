@@ -55,4 +55,20 @@ router.get('/productivity', [auth, admin], async (req, res) => {
   }
 });
 
+// Delete a user (Admin only)
+router.delete('/:id', [auth, admin], async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    // Safety: Don't allow deleting admins via this route
+    if (user.role === 'admin') return res.status(403).json({ message: 'Cannot delete admin accounts' });
+
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User removed successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
