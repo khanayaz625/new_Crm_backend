@@ -20,8 +20,9 @@ router.delete('/:id', [auth, admin], async (req, res) => {
       return res.status(403).json({ message: 'Cannot delete admin accounts' });
     }
 
-    await User.findByIdAndDelete(req.params.id);
-    console.log('Delete Success');
+    user.isActive = false;
+    await user.save();
+    console.log('Delete (Deactivate) Success');
     res.json({ message: 'User removed successfully' });
   } catch (err) {
     console.error('DELETE ERROR:', err);
@@ -32,7 +33,7 @@ router.delete('/:id', [auth, admin], async (req, res) => {
 // Get all employees (Admins only)
 router.get('/employees', [auth, admin], async (req, res) => {
   try {
-    const employees = await User.find({ role: 'employee' }).select('-password');
+    const employees = await User.find({ role: 'employee', isActive: true }).select('-password');
     console.log('Found employees:', employees.length);
     res.json(employees);
   } catch (err) {
