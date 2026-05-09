@@ -26,7 +26,7 @@ router.post('/login', async (req, res) => {
       console.log('Bootstrap: Created default admin (admin@crm.com / admin123)');
     }
 
-    const { email, password } = req.body;
+
     const cleanEmail = email.toLowerCase().trim();
     console.log(`Login attempt for: ${cleanEmail}`);
 
@@ -34,6 +34,10 @@ router.post('/login', async (req, res) => {
     if (!user) {
       console.log(`User not found: ${cleanEmail}`);
       return res.status(400).json({ message: 'User not found' });
+    }
+
+    if (user.isActive === false) {
+      return res.status(400).json({ message: 'User account is deactivated' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -80,6 +84,34 @@ router.get('/me', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Delete User Route
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden: Admins only' });
+    }
+
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Don't let an admin delete themselves
+    if (user._id.toString() === req.user.id) {
+      return res.status(400).json({ message: 'Cannot delete yourself' });
+    }
+
+    user.isActive = false; // Soft delete
+    await user.save();
+
+    res.json({ message: 'User deleted (deactivated) successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
