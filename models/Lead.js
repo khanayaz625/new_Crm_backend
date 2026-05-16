@@ -24,4 +24,12 @@ const leadSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Optimization: Indexes for faster search and filtering
+leadSchema.index({ name: 'text', phone: 'text' }); // Text index for search
+leadSchema.index({ status: 1 });
+leadSchema.index({ assignedTo: 1 });
+leadSchema.index({ createdAt: -1 });
+leadSchema.index({ course: 1 });
+leadSchema.index({ college: 1 });
+
 module.exports = mongoose.model('Lead', leadSchema);

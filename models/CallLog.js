@@ -9,4 +9,10 @@ const callLogSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Optimization: Indexes for faster search and filtering
+callLogSchema.index({ leadId: 1 });
+callLogSchema.index({ employeeId: 1 });
+callLogSchema.index({ status: 1 });
+callLogSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('CallLog', callLogSchema);
