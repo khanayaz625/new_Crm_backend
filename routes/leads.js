@@ -97,6 +97,28 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// Add single lead manually
+router.post('/', auth, async (req, res) => {
+  try {
+    const { name, email, phone, course, college } = req.body;
+    if (!name || !phone) return res.status(400).json({ message: 'Name and Phone are required' });
+
+    const lead = new Lead({
+      name,
+      email,
+      phone,
+      course,
+      college,
+      source: 'Manual'
+    });
+
+    await lead.save();
+    res.status(201).json(lead);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Import leads from Excel or CSV
 router.post('/import', [auth, admin, upload.single('file')], async (req, res) => {
   try {
